@@ -39,7 +39,8 @@ const login = async(req,res)=>{
             token
         })
     }catch(error){
-        return res.status(500).josn({
+        console.log(error)
+        return res.status(500).json({
             status:'Error',
             mensaje:'No se pudo iniciar sesion',
             error:error
