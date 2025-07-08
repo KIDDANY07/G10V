@@ -1,0 +1,20 @@
+# Usa la imagen oficial de Node
+FROM node:20
+
+# Establece el directorio de trabajo
+WORKDIR /usr/src/app
+
+# Copia package.json y package-lock.json
+COPY package*.json ./
+
+# Instala dependencias
+RUN npm install
+
+# Copia el resto de tu código al contenedor
+COPY . .
+
+# Expone el puerto de Express
+EXPOSE 3000
+
+# Comando por defecto
+CMD ["npm", "start"]

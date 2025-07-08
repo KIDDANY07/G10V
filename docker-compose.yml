@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: G10V
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - "3900:3900"
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: 1234
+      DB_NAME: G10V
+      DB_HOST: db
+      DB_PORT: 5432
+      JWT_SECRET: jsonwebtokencotraseña
+      PORT: 3900
+    depends_on:
+      - db
