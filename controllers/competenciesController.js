@@ -50,7 +50,7 @@ const getByName = async(req,res)=>{
     try{
         const name = req.params.name
         const competencie = await competencieModel.getByName(name)
-        if(!competencie){
+        if(competencie.length === 0){
             return res.status(404).json({
                 status:'Error',
                 mensaje:'No existe esta competencia'
@@ -74,7 +74,7 @@ const getByCategory = async(req,res)=>{
     try{
         const category = req.params.category
         const competencie = await competencieModel.getByCategory(category)
-        if(!category){
+        if(category.length === 0){
             return res.status(404).json({
                 status:'Error',
                 mensaje:'No existen competencias con estas categorias'
@@ -98,7 +98,7 @@ const getByStatus = async(req,res)=>{
     try{
         const status = req.params.status
         const competencie = await competencieModel.getByStatus(status)
-        if(!competencie){
+        if(competencie.length === 0){
             return res.status(404).json({
                 status:'Error',
                 mensaje:'No existen competencias con este estado'

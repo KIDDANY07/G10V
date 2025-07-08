@@ -54,6 +54,30 @@ const getById = async(req,res)=>{
     }
 }
 
+const getByUserActive = async(req,res)=>{
+    try{
+        const id = req.user.id
+        const user = await userModel.getById(id)
+        if(!user){
+            return res.status(404).json({
+                status:'Error',
+                mensaje:'Usuario no encontrado'
+            })
+        }
+
+        return res.status(200).json({
+            status:'Success',
+            user
+        })
+    }catch(error){
+        return res.status(500).json({
+            status:'Error',
+            mensaje:'No se pudo obtener la informacion',
+            error:error
+        })
+    }
+}
+
 const getByEmail = async(req,res)=>{
     try{
         const email = req.params.email
@@ -196,6 +220,7 @@ const deleteUser = async(req,res)=>{
 module.exports = {
     getAll,
     getById,
+    getByUserActive,
     getByEmail,
     create,
     updateByUserActive,

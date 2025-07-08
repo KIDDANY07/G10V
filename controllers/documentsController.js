@@ -105,6 +105,31 @@ const createActiveUser = async(req,res)=>{
         })
     }
 }
+
+const getByUserActive = async(req,res)=>{
+    try{
+        const user_id = req.user.id
+        const documents = await documentsModel.getByUserId(user_id)
+        if(!documents){
+            return res.status(404).json({
+                status:'Error',
+                mensaje:'Este usuario no tiene registro de documentos'
+            })
+        }
+
+        return res.status(200).json({
+            status:'Success',
+            documents
+        })
+    }catch(error){
+        return res.status(500).json({
+            status:'Error',
+            mensaje:'No se pudo obtener los datos',
+            error:error
+        })
+    }
+}
+
 const create = async(req,res)=>{
     try{
         const user_id = req.params.id
@@ -322,6 +347,7 @@ module.exports = {
     getAll,
     getById,
     getByUserName,
+    getByUserActive,
     createActiveUser,
     create,
     updateActiveUser,

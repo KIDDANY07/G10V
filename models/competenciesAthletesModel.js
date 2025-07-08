@@ -4,6 +4,7 @@ const getAll = async () => {
     const result = await pool.query(`
         SELECT
             cu.id,
+            cu.user_id, -- agregado el id del usuario
             u.names AS user_name,
             c.name AS competency_name,
             c.category AS competency_category,
@@ -15,6 +16,7 @@ const getAll = async () => {
     `)
     return result.rows
 }
+
 
 const getById = async (id) => {
     const result = await pool.query(`
