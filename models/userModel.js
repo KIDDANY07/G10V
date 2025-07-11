@@ -16,13 +16,18 @@ const getByEmail = async(email)=>{
     return result.rows[0]
 }
 
-const create = async(names,email,hashedPassword,document,type_document,rol)=>{
-    const result = await pool.query('INSERT INTO users (names,email,password,document,type_document,rol) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',[names,email,hashedPassword,document,type_document,rol])
+const getByNames = async(names)=>{
+    const result = await pool.query('SELECT * FROM users WHERE names = $1',[names])
     return result.rows[0]
 }
 
-const update = async(age,date_birth,stature,weight,position,id)=>{
-    const result = await pool.query('UPDATE users SET age = $1, date_birth = $2, stature = $3, weight = $4, position = $5 WHERE id = $6 RETURNING *',[age,date_birth,stature,weight,position,id])
+const create = async(names,email,hashedPassword,document,type_document,rol)=>{
+    const result = await pool.query('INSERT INTO users (names,email,password,document,type_document,rol) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',[names,email,hashedPassword,document,type_document,rol || null])
+    return result.rows[0]
+}
+
+const update = async(age,date_birth,stature,weight,position,image,id)=>{
+    const result = await pool.query('UPDATE users SET age = $1, date_birth = $2, stature = $3, weight = $4, position = $5, image = $6 WHERE id = $7 RETURNING *',[age,date_birth,stature,weight,position,image,id])
     return result.rows[0]
 }
 
@@ -36,6 +41,7 @@ module.exports = {
     getAll,
     getById,
     getByEmail,
+    getByNames,
     create,
     update,
     deleteUser

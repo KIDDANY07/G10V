@@ -1,6 +1,8 @@
 const userModel = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config()
 
 
@@ -14,10 +16,13 @@ const getAll = async(req,res)=>{
                 mensaje:'No existen usuarios registrados'
             })
         }
-
+        const usersWithoutPassword = users.map(u => {
+            if(u.password) delete u.password
+            return u
+        })
         return res.status(200).json({
             status:'Success',
-            users
+            users: usersWithoutPassword
         })
     }catch(error){  
         return res.status(500).json({
@@ -40,7 +45,7 @@ const getById = async(req,res)=>{
                 mensaje:'El usuario no existe'
             })
         }
-
+        if(user.password) delete user.password
         return res.status(200).json({
             status:'Success',
             user
@@ -65,6 +70,7 @@ const getByUserActive = async(req,res)=>{
             })
         }
 
+        if(user.password) delete user.password
         return res.status(200).json({
             status:'Success',
             user
@@ -88,7 +94,7 @@ const getByEmail = async(req,res)=>{
                 mensaje:'El usuario no existe'
             })
         }
-
+        if(user.password) delete user.password
         return res.status(200).json({
             status:'Success',
             user
@@ -103,10 +109,34 @@ const getByEmail = async(req,res)=>{
     }
 }
 
+const getByNames = async(req,res)=>{
+    try{
+        const names = req.params.names
+        const user = await userModel.getByNames(names)
+        if(!user){
+            return res.status(404).json({
+                status:'Error',
+                mensaje:'Usuario no encontrado'
+            })
+        }
+        if(user.password) delete user.password
+        return res.status(200).json({
+            status:'Success',
+            user
+        })
+    }catch(error){
+        return res.status(500).json({
+            status:'Error',
+            mensaje:'No se pudo obtener la informacion',
+            error:error
+        })
+    }
+}
+
 const create = async(req,res)=>{
     try{
         const {names,email,password,document,type_document,rol} = req.body
-        if(!names || !email || !password || !document || !type_document || !rol){
+        if(!names || !email || !password || !document || !type_document){
             return res.status(400).json({
                 status:'Error',
                 mensaje:'Es requerida toda la informacion'
@@ -138,56 +168,113 @@ const create = async(req,res)=>{
     }
 }
 
-
-const updateByUserActive = async(req,res)=>{
-    try{
+const updateByUserActive = async (req, res) => {
+    try {
         const id = req.user.id
-        const {age,date_birth,stature,weight,position} = req.body
-        if(!age || !date_birth || !stature || !weight || !position){
+        const { age, date_birth, stature, weight, position } = req.body
+
+        if (!age || !date_birth || !stature || !weight || !position) {
             return res.status(400).json({
-                status:'Error',
-                mensaje:'Es requerida toda la informacion'
+                status: 'Error',
+                mensaje: 'Es requerida toda la información'
             })
         }
 
-        const user = await userModel.update(age,date_birth,stature,weight,position,id)
+        const userData = await userModel.getById(id)
+        let image = userData?.image || null
+
+        if (req.file) {
+            const userNames = req.user.names
+
+            if (!userNames) {
+                return res.status(400).json({
+                    status: 'Error',
+                    mensaje: 'No se encontró el nombre de usuario para crear la ruta de imagen'
+                })
+            }
+
+            const imagesDir = path.join(__dirname, '..', 'uploads', 'images', userNames)
+
+            if (image) {
+                const oldImagePath = path.join(imagesDir, image)
+                if (fs.existsSync(oldImagePath)) {
+                    try {
+                        fs.unlinkSync(oldImagePath)
+                    } catch (err) {
+                        console.error(`Error al eliminar imagen anterior: ${err}`)
+                    }
+                }
+            }
+
+            image = req.file.filename
+        }
+
+        const user = await userModel.update(age, date_birth, stature, weight, position, image, id)
+
         return res.status(200).json({
-            status:'Success',
+            status: 'Success',
             user
         })
-    }catch(error){
-        console.log(error)
+
+    } catch (error) {
+        console.error(error)
         return res.status(500).json({
-            status:'Error',
-            mensaje:'No se pudo actualizar el usuario',
-            error:error
+            status: 'Error',
+            mensaje: 'No se pudo actualizar el usuario',
+            error: error.message
         })
     }
 }
 
-const updateByAdmin = async(req,res)=>{
-    try{
+const updateByAdmin = async (req, res) => {
+    try {
         const id = req.params.id
-        const {age,date_birth,stature,weight,position} = req.body
-        if(!age || !date_birth || !stature || !weight || !position){
+        const { age, date_birth, stature, weight, position } = req.body
+
+        if (!age || !date_birth || !stature || !weight || !position) {
             return res.status(400).json({
-                status:'Error',
-                mensaje:'Es requerida toda la informacion'
+                status: 'Error',
+                mensaje: 'Es requerida toda la informacion'
             })
         }
 
+        const userData = await userModel.getById(id)
+        let image = userData?.image || null
+        let userNames = userData?.names
 
-        const user = await userModel.update(age,date_birth,stature,weight,position,id)
+        if (req.file) {
+            if (!userNames) {
+                return res.status(400).json({
+                    status: 'Error',
+                    mensaje: 'No se encontró el nombre de usuario para crear la ruta de imagen'
+                })
+            }
+
+            const imagesDir = path.join(__dirname, '..', 'uploads', 'images', userNames)
+            if (image) {
+                const oldImagePath = path.join(imagesDir, image)
+                if (fs.existsSync(oldImagePath)) {
+                    try {
+                        fs.unlinkSync(oldImagePath)
+                    } catch (err) {
+                        console.error(`Error al eliminar imagen anterior: ${err}`)
+                    }
+                }
+            }
+            image = req.file.filename
+        }
+
+        const user = await userModel.update(age, date_birth, stature, weight, position, image, id)
         return res.status(200).json({
-            status:'Success',
+            status: 'Success',
             user
         })
-    }catch(error){
+    } catch (error) {
         console.log(error)
         return res.status(500).json({
-            status:'Error',
-            mensaje:'No se pudo actualizar el usuario',
-            error:error
+            status: 'Error',
+            mensaje: 'No se pudo actualizar el usuario',
+            error: error.message
         })
     }
 }
@@ -222,6 +309,7 @@ module.exports = {
     getById,
     getByUserActive,
     getByEmail,
+    getByNames,
     create,
     updateByUserActive,
     updateByAdmin,

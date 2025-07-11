@@ -12,7 +12,7 @@ const getById = async(id)=>{
 
 const getByName = async(name)=>{
     const result = await pool.query('SELECT * FROM competencies WHERE name = $1 ORDER BY id DESC',[name])
-    return result.rows[0]
+    return result.rows
 }
 
 const getByCategory = async(category)=>{

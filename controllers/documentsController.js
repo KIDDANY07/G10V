@@ -18,6 +18,7 @@ const getAll = async(req,res)=>{
             documents
         })
     }catch(error){
+        console.log(error)
         return res.status(500).json({
             status:'Error',
             mensaje:'No se pudieron obtener los documentos',
@@ -106,6 +107,30 @@ const createActiveUser = async(req,res)=>{
     }
 }
 
+const getByUserId = async(req,res)=>{
+    try{
+        const user_id = req.params.id
+        const documents = await documentsModel.getByUserId(user_id)
+        if(!documents){
+            return res.status(404).json({
+                status:'Error',
+                mensaje:'Este usuario no tiene registro de documentos'
+            })
+        }
+
+        return res.status(200).json({
+            status:'Success',
+            documents
+        })
+    }catch(error){
+        return res.status(500).json({
+            status:'Error',
+            mensaje:'No se pudo obtener los datos',
+            error:error
+        })
+    }
+}
+
 const getByUserActive = async(req,res)=>{
     try{
         const user_id = req.user.id
@@ -130,18 +155,17 @@ const getByUserActive = async(req,res)=>{
     }
 }
 
-const create = async(req,res)=>{
-    try{
+const create = async (req, res) => {
+    try {
         const user_id = req.params.id
-        const id = user_id
-        const user = await userModel.getById(id)
-        const name_user = user.names
+        const name_user = req.userNames 
+
         const files = req.files
 
-        if(!files || !files.document_file || !files.civil_registry || !files.lfb_file){
+        if (!files || !files.document_file || !files.civil_registry || !files.lfb_file) {
             return res.status(400).json({
-                status:'Error',
-                mensaje:'Es requerida toda la informacion'
+                status: 'Error',
+                mensaje: 'Es requerida toda la información: document_file, civil_registry y lfb_file'
             })
         }
 
@@ -149,19 +173,27 @@ const create = async(req,res)=>{
         const civil_registry = files.civil_registry[0].filename
         const lfb_file = files.lfb_file[0].filename
 
-        const documents = await documentsModel.create(user_id,document_file,civil_registry,lfb_file,name_user)
+        const documents = await documentsModel.create(
+            user_id,
+            document_file,
+            civil_registry,
+            lfb_file,
+            name_user
+        )
+
         return res.status(200).json({
-            status:'Success',
+            status: 'Success',
             documents
         })
-    }catch(error){
+    } catch (error) {
         return res.status(500).json({
-            status:'Error',
-            mensaje:'No se pudo crear los documentos',
-            error:error
+            status: 'Error',
+            mensaje: 'No se pudo crear los documentos',
+            error
         })
     }
 }
+
 
 const updateActiveUser = async(req,res)=>{
     try{
@@ -177,7 +209,7 @@ const updateActiveUser = async(req,res)=>{
         }
 
         const currentDocuments = await documentsModel.getByUserId(user_id)
-        if(!currentDocuments){
+        if(!currentDocuments === 0){
             return res.status(404).json({
                 status:'Error',
                 mensaje:'No tienes documentos registrados'
@@ -222,63 +254,73 @@ const updateActiveUser = async(req,res)=>{
 }
 
 
-const update = async(req,res)=>{
-    try{
+const update = async (req, res) => {
+    try {
         const user_id = req.params.id
-
+        const userName = req.userNames 
+        console.log(user_id)
         const files = req.files
 
-        if(!files || !files.document_file || !files.civil_registry || !files.lfb_file){
+        if (!files || !files.document_file || !files.civil_registry || !files.lfb_file) {
             return res.status(400).json({
-                status:'Error',
-                mensaje:'Es requerida toda la informacion'
+                status: 'Error',
+                mensaje: 'Es requerida toda la información: document_file, civil_registry y lfb_file'
             })
         }
 
         const currentDocuments = await documentsModel.getByUserId(user_id)
-        if(!currentDocuments){
-            return res.status(400).json({
-                status:'Error',
-                mensaje:'No tiene registrado documentos este usuario'
+        if (currentDocuments.length === 0) {
+            return res.status(404).json({
+                status: 'Error',
+                mensaje: 'No tiene documentos registrados este usuario'
             })
         }
 
-        const userName = currentDocuments.user_name
+        const uploadsDir = path.join(__dirname, '..', 'uploads', userName)
 
-        const uploadsDir = path.join(__dirname,'..','uploads',userName)
-
+        // Eliminar archivos anteriores si existen
         const filesToDelete = [
             currentDocuments.document_file,
             currentDocuments.civil_registry,
             currentDocuments.lfb_file
         ]
 
-        filesToDelete.forEach(fileName=>{
-            const filePath = path.join(uploadsDir, fileName)
-            if(fs.existsSync(filePath)){
-                fs.unlinkSync(filePath)
+        filesToDelete.forEach(fileName => {
+            if (fileName) {
+                const filePath = path.join(uploadsDir, fileName)
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath)
+                }
             }
         })
-        
+
+        // Obtener los nuevos nombres de archivo
         const document_file = files.document_file[0].filename
         const civil_registry = files.civil_registry[0].filename
         const lfb_file = files.lfb_file[0].filename
 
-        const documents = await documentsModel.update(document_file,civil_registry,lfb_file,user_id)
+        // Actualizar en base de datos
+        const documents = await documentsModel.update(
+            document_file,
+            civil_registry,
+            lfb_file,
+            user_id
+        )
 
         return res.status(200).json({
-            status:'Success',
+            status: 'Success',
             documents
         })
-    }catch(error){
-        console.log(error)
+    } catch (error) {
+        console.error(error)
         return res.status(500).json({
-            status:'Error',
-            mensaje:'No se pudo actualizar los documentos',
-            error:error
+            status: 'Error',
+            mensaje: 'No se pudo actualizar los documentos',
+            error
         })
     }
 }
+
 
 const deleteDocuments = async (req, res) => {
     try {
@@ -348,6 +390,7 @@ module.exports = {
     getById,
     getByUserName,
     getByUserActive,
+    getByUserId,
     createActiveUser,
     create,
     updateActiveUser,
