@@ -26,8 +26,13 @@ const create = async(names,email,hashedPassword,document,type_document,rol)=>{
     return result.rows[0]
 }
 
-const update = async(age,date_birth,stature,weight,position,image,rol,id)=>{
+const updateAdmin = async(age,date_birth,stature,weight,position,image,rol,id)=>{
     const result = await pool.query('UPDATE users SET age = $1, date_birth = $2, stature = $3, weight = $4, position = $5, image = $6, rol = $7 WHERE id = $8 RETURNING *',[age,date_birth,stature,weight,position,image,rol,id])
+    return result.rows[0]
+}
+
+const updateByUserActive = async(age,date_birth,stature,weight,position,image,id)=>{
+    const result = await pool.query('UPDATE users SET age = $1, date_birth = $2, stature = $3, weight = $4, position = $5, image = $6 WHERE id = $7 RETURNING *',[age,date_birth,stature,weight,position,image,id])
     return result.rows[0]
 }
 
@@ -43,6 +48,7 @@ module.exports = {
     getByEmail,
     getByNames,
     create,
-    update,
+    updateAdmin,
+    updateByUserActive,
     deleteUser
 }

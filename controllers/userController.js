@@ -209,7 +209,7 @@ const updateByUserActive = async (req, res) => {
             image = req.file.filename
         }
 
-        const user = await userModel.update(age, date_birth, stature, weight, position, image, id)
+        const user = await userModel.updateByUserActive(age, date_birth, stature, weight, position, image, id)
 
         return res.status(200).json({
             status: 'Success',
@@ -264,7 +264,7 @@ const updateByAdmin = async (req, res) => {
             image = req.file.filename
         }
 
-        const user = await userModel.update(age, date_birth, stature, weight, position, image, rol, id)
+        const user = await userModel.updateAdmin(age, date_birth, stature, weight, position, image, rol, id)
         return res.status(200).json({
             status: 'Success',
             user
