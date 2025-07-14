@@ -235,7 +235,6 @@ const updateActiveUser = async(req,res)=>{
         const civil_registry = files.civil_registry[0].filename
         const lfb_file = files.lfb_file[0].filename
 
-
         const documents = await documentsModel.update(document_file,civil_registry,lfb_file,user_id)
 
         return res.status(200).json({
@@ -278,7 +277,6 @@ const update = async (req, res) => {
 
         const uploadsDir = path.join(__dirname, '..', 'uploads', userName)
 
-        // Eliminar archivos anteriores si existen
         const filesToDelete = [
             currentDocuments.document_file,
             currentDocuments.civil_registry,
@@ -294,12 +292,10 @@ const update = async (req, res) => {
             }
         })
 
-        // Obtener los nuevos nombres de archivo
         const document_file = files.document_file[0].filename
         const civil_registry = files.civil_registry[0].filename
         const lfb_file = files.lfb_file[0].filename
 
-        // Actualizar en base de datos
         const documents = await documentsModel.update(
             document_file,
             civil_registry,

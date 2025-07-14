@@ -3,9 +3,11 @@ const pool = require('../config/db')
 const getAll = async () => {
     const result = await pool.query(`
         SELECT
-            cu.id,
-            cu.user_id, -- agregado el id del usuario
+            cu.id AS competency_user_id,
+            cu.user_id,
             u.names AS user_name,
+            u.email AS user_email,
+            c.id AS competency_id,
             c.name AS competency_name,
             c.category AS competency_category,
             c.status AS competency_status,
@@ -24,6 +26,7 @@ const getById = async (id) => {
             cu.id AS competency_user_id,
             u.id AS user_id,
             u.names AS user_name,
+            u.email AS user_email,
             c.id AS competency_id,
             c.name AS competency_name,
             c.category AS competency_category,
@@ -48,6 +51,7 @@ const getByUserId = async (user_id) => {
             cu.id AS competency_user_id,
             u.id AS user_id,
             u.names AS user_name,
+            u.email AS user_email,
             c.id AS competency_id,
             c.name AS competency_name,
             c.category AS competency_category,
@@ -74,6 +78,7 @@ const getByUserName = async (userName) => {
             cu.id AS competency_user_id,
             u.id AS user_id,
             u.names AS user_name,
+            u.email AS user_email,
             c.id AS competency_id,
             c.name AS competency_name,
             c.category AS competency_category,
@@ -100,6 +105,7 @@ const getByCompetencyName = async (competency_name) => {
             cu.id AS competency_user_id,
             u.id AS user_id,
             u.names AS user_name,
+            u.email AS user_email,
             c.id AS competency_id,
             c.name AS competency_name,
             c.category AS competency_category,
@@ -126,6 +132,7 @@ const getByCompetencyStatus = async (status) => {
         cu.id AS competency_user_id,
         u.id AS user_id,
         u.names AS user_name,
+        u.email AS user_email,
         c.id AS competency_id,
         c.name AS competency_name,
         c.category AS competency_category,

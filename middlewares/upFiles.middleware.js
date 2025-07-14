@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
         const userNames = req.user?.names || 'unknownUser'
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        const originalName = path.basename(file.originalname).replace(/\s+/g, '_') // Reemplaza espacios por guiones bajos
+        const originalName = path.basename(file.originalname).replace(/\s+/g, '_') 
 
         const finalName = `${userNames}-${uniqueSuffix}-${originalName}`
         cb(null, finalName)

@@ -1,5 +1,5 @@
 const userModel = require('../models/userModel')
-const jwt = require('jsonwebtoken')
+const documentsModel = require('../models/documentsModel')
 const bcrypt = require('bcryptjs')
 const fs = require('fs');
 const path = require('path');
@@ -229,9 +229,9 @@ const updateByUserActive = async (req, res) => {
 const updateByAdmin = async (req, res) => {
     try {
         const id = req.params.id
-        const { age, date_birth, stature, weight, position } = req.body
+        const { age, date_birth, stature, weight, position, rol } = req.body
 
-        if (!age || !date_birth || !stature || !weight || !position) {
+        if (!age || !date_birth || !stature || !weight || !position || !rol) {
             return res.status(400).json({
                 status: 'Error',
                 mensaje: 'Es requerida toda la informacion'
@@ -264,7 +264,7 @@ const updateByAdmin = async (req, res) => {
             image = req.file.filename
         }
 
-        const user = await userModel.update(age, date_birth, stature, weight, position, image, id)
+        const user = await userModel.update(age, date_birth, stature, weight, position, image, rol, id)
         return res.status(200).json({
             status: 'Success',
             user
@@ -283,6 +283,9 @@ const updateByAdmin = async (req, res) => {
 const deleteUser = async(req,res)=>{
     try{
         const id = req.params.id
+        
+        const user_id = id
+        const documents = await documentsModel.deleteDocuments(user_id)
         const user = await userModel.deleteUser(id)
         if(!user){
             return res.status(404).json({
