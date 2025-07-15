@@ -26,3 +26,5 @@ services:
       PORT: 3900
     depends_on:
       - db
+    volumes:
+      - ./uploads:/usr/src/app/uploads

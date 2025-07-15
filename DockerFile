@@ -13,8 +13,8 @@ RUN npm install
 # Copia el resto de tu código al contenedor
 COPY . .
 
-# Expone el puerto de Express
-EXPOSE 3000
+# Expone el puerto correcto de Express
+EXPOSE 3900
 
 # Comando por defecto
 CMD ["npm", "start"]
